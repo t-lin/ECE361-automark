@@ -1,0 +1,5 @@
+# List of filenames (one per line) for submission script to look for
+# Can use relative paths (relative to where script was run)
+file1
+../file2
+testdir/file3
