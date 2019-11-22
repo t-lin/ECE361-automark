@@ -1,0 +1,9 @@
+#!/bin/bash
+echo "THIS IS A POST-TEST SCRIPT"
+exit 1
+
+# Gracefull quit mininet
+screen -S mininet -X stuff "quit"
+
+# Kill screen
+screen -S mininet -X quit

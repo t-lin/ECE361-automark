@@ -1,0 +1,6 @@
+#!/bin/bash
+# This script is to check the output
+# It should RETURN 0 if everything is successful, else bad
+exit 0
+
+

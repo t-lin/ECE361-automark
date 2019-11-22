@@ -1,0 +1,25 @@
+# If line starts with 'public', then the case following the comma
+# will be used as part of the public exerciser tests.
+# If line starts with 'private', the case following the comma will
+# be used as part of the private (marked) set of tests.
+#
+# Format:
+#   <public or private> <case/dir name> [mark, if private]
+#
+# NOTES:
+#   - Case names are also the names of the directories where the
+#     tester will look in to find the test files.
+#   - Marks must be positive numbers. They can be in decimal format,
+#     but if so, they must begin and end with an integer.
+#       - e.g. 0.5 is valid, .5 is not valid
+#       - e.g. 2.0 is valid, 2. is not valid
+#
+
+public case1
+public case2
+private case1 1
+#private case2 0.5
+private case3 2
+#private case4 4
+
+
