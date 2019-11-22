@@ -72,6 +72,14 @@ function checkRequiredFiles() {
     fi
 }
 
+# Create title row
+RESULT_LINE="UTORid"
+for CASE in ${TEST_CASES[*]}; do
+    RESULT_LINE+=,${CASE}
+done
+RESULT_LINE+=",Total"
+echo ${RESULT_LINE} > ${RESULTS_FILE}
+
 # For each student, go through all the test cases
 for UTORID in ${STUDENT_LIST}; do
     # See if a submission exists (directory w/ the UTORid)
@@ -82,6 +90,7 @@ for UTORID in ${STUDENT_LIST}; do
     fi
 
     RESULT_LINE=${UTORID}
+    TOTAL_MARK=0
 
     for ((i = 0; i < ${NUM_CASES}; i++)); do
         CASE=${TEST_CASES[${i}]}
@@ -110,6 +119,7 @@ for UTORID in ${STUDENT_LIST}; do
         if [[ $? -eq 0 ]]; then
             bold_green "Success :D +${MARK}"
             RESULT_LINE+=,${MARK}
+            TOTAL_MARK=`echo "${TOTAL_MARK} + ${MARK}" | bc`
         elif [[ $? -eq 1 ]]; then
             bold_red "Failed :("
             RESULT_LINE+=,0
@@ -118,7 +128,7 @@ for UTORID in ${STUDENT_LIST}; do
         echo; echo;
     done
 
-    echo ${RESULT_LINE} >> ${RESULTS_FILE}
+    echo ${RESULT_LINE},${TOTAL_MARK} >> ${RESULTS_FILE}
 done
 
 echo; echo;
