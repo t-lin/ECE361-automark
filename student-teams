@@ -1,0 +1,14 @@
+# Can comment students/teams out as they drop the course
+# Each row is a team
+#   - A team is a comma-separated list of UTORids
+#   - A row of a single UTORid is valid (e.g. individual)
+#
+
+etesamis
+huangyih,linjie2
+linthom1
+#moghad27
+tabriz15
+zhan4554
+
+

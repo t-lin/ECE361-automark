@@ -13,14 +13,15 @@ else
     LAB_NUM=$1
 fi
 
+CURR_DIR=`pwd`
 SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
 source ${SCRIPT_DIR}/echoHelpers
 
 # Directory where all the marking files and scripts are
 LAB_DIR=${SCRIPT_DIR}/lab${LAB_NUM}
 
-# Read in list of students in the course (by UTORid)
-STUDENT_LIST=`cat ${SCRIPT_DIR}/students-list | grep "^[a-z]"`
+# Read in list of teams in the course (by UTORid)
+STUDENT_LIST=`cat ${SCRIPT_DIR}/student-teams | grep "^[a-z]"`
 
 # Define results file to store marking data
 # Back up results file if one already exists
@@ -72,7 +73,7 @@ function checkRequiredFiles() {
     fi
 }
 
-# Create title row
+# Create title row in the grade file
 RESULT_LINE="UTORid"
 for CASE in ${TEST_CASES[*]}; do
     RESULT_LINE+=,${CASE}
@@ -80,18 +81,70 @@ done
 RESULT_LINE+=",Total"
 echo ${RESULT_LINE} > ${RESULTS_FILE}
 
-# For each student, go through all the test cases
-for UTORID in ${STUDENT_LIST}; do
-    # See if a submission exists (directory w/ the UTORid)
-    if [[ ! -d ${UTORID} ]]; then
-        # Either the student didn't submit or his/her partner did
-        # TODO: Account for the case of partners
+# Takes 1 input parameter:
+#   1) Comma-delimited list of UTORid's
+#
+# Check if there are multiple students (e.g. a team)
+# If there are, figure out which member submitted
+# If multiple members submitted, find the one who submitted the latest
+#
+# Sets 'UTORID' to the latest that submitted, or nothing if no one submitted
+function findLatestSubmitter() {
+    unset UTORID
+
+    MEMBERS=(`echo $1 | sed 's/,/ /g'`)
+    if [[ ${#MEMBERS[*]} -gt 1 ]]; then
+        LATEST_TIMESTAMP=0
+
+        for MEMBER_UTORID in ${MEMBERS[*]}; do
+            if [[ -d ${MEMBER_UTORID} ]]; then
+                TIMESTAMP=`stat -c %Y ${MEMBER_UTORID}`
+                if [[ ${TIMESTAMP} -gt ${LATEST_TIMESTAMP} ]]; then
+                    LATEST_TIMESTAMP=${TIMESTAMP}
+                    UTORID=${MEMBER_UTORID}
+                fi
+            fi
+        done
+    else
+        if [[ -d ${MEMBERS} ]]; then
+            UTORID=${MEMBERS}
+        fi
+    fi
+}
+
+# Takes two input parameters:
+#   1) Comma-delimited list of UTORid's
+#   2) Comma-delimited list of marks to assign (starting with comma)
+#       - One per test case, plus total at the end
+#       - e.g. ,1,2,3,4,10
+function writeGradeFile() {
+    MEMBERS=(`echo $1 | sed 's/,/ /g'`)
+    MARKS=$2
+    for MEMBER_UTORID in ${MEMBERS[*]}; do
+        if [[ -n ${MARKS} ]]; then
+            echo ${MEMBER_UTORID}${MARKS} >> ${RESULTS_FILE}
+        else
+            echo ${MEMBER_UTORID} >> ${RESULTS_FILE}
+        fi
+    done
+}
+
+# For each team/student, go through all the test cases
+for LINE in ${STUDENT_LIST}; do
+    findLatestSubmitter $LINE # Sets 'UTORID' to latest submitter
+
+    # If 'UTORID' has not been set (or is empty), then no one submitted
+    # Create entries in results file, but leave marks empty
+    if [[ ! -n ${UTORID} ]]; then
+        bold_yellow "WARNING: No submission for ${LINE}"
+        writeGradeFile $LINE
         continue
     fi
 
-    RESULT_LINE=${UTORID}
+    unset RESULT_LINE
     TOTAL_MARK=0
 
+    cd ${CURR_DIR}/${UTORID}
     for ((i = 0; i < ${NUM_CASES}; i++)); do
         CASE=${TEST_CASES[${i}]}
         MARK=${CASE_MARKS[${i}]}
@@ -108,14 +161,14 @@ for UTORID in ${STUDENT_LIST}; do
         checkOptionalAndRun ${LAB_DIR}/${CASE}/pre-test
 
         # Run test, redirect stderr to stdout, then write out to file
-        ${LAB_DIR}/${CASE}/test 2>&1 > ${UTORID}/output
+        ${LAB_DIR}/${CASE}/test 2>&1 > ${CASE}-output.log
 
         # Post-test is OPTIONAL. Run it if it exists.
         checkOptionalAndRun ${LAB_DIR}/${CASE}/post-test
 
         # Checking output is non-optional
         # Prints out 0 on failure, 1 on success
-        ${LAB_DIR}/${CASE}/check-output ${UTORID}/output
+        ${LAB_DIR}/${CASE}/check-output ${CASE}-output.log
         if [[ $? -eq 0 ]]; then
             bold_green "Success :D +${MARK}"
             RESULT_LINE+=,${MARK}
@@ -128,7 +181,10 @@ for UTORID in ${STUDENT_LIST}; do
         echo; echo;
     done
 
-    echo ${RESULT_LINE},${TOTAL_MARK} >> ${RESULTS_FILE}
+    RESULT_LINE+=,${TOTAL_MARK}
+    writeGradeFile $LINE ${RESULT_LINE}
+
+    cd ${CURR_DIR}
 done
 
 echo; echo;
