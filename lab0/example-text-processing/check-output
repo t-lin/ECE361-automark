@@ -3,6 +3,11 @@
 # It should RETURN 0 if everything is successful, else bad
 echo "CHECKING OUTPUT IN FILE $1"
 
-exit 0
+STARTS_WITH_NUMBER=`cat $1 | grep "^[0-9]"`
 
+if [[ -n ${STARTS_WITH_NUMBER} ]]; then
+    exit 0
+else
+    exit 1
+fi
 

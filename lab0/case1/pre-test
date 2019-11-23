@@ -1,16 +1,0 @@
-#!/bin/bash
-echo "THIS IS A PRE-TEST SCRIPT"
-exit 1
-
-# Exit any pre-existing mininet sessions and clean up
-screen -S mininet -X quit
-sudo mn -c
-
-# Start new screen session and set log file
-screen -d -m -S mininet
-screen -S mininet -X logfile /home/ubuntu/test123.log
-screen -S mininet -X log on
-
-# Start mininet
-screen -S mininet -X stuff "sudo mn --topo tree,depth=2,fanout=3 --switch ovsk --controller ref"
-
