@@ -51,15 +51,14 @@ function checkOptionalAndRun() {
 }
 
 # Validate required scripts to see if they exist and is executable.
-# If not, print out error and quit.
+# If not, print out warning and return 255.
 function checkRequiredScript() {
     FILE=$1
 
     if [[ ! -f ${FILE} || ! -x ${FILE} ]]; then
         BASENAME=$(basename ${FILE})
         bold_red "ERROR:\tCase '${CASE}' is missing required file '${BASENAME}'"
-        bold_red "\tAborting the remaining tests"
-        exit 1
+        return 255
     fi
 }
 
@@ -75,7 +74,8 @@ cp -a ${REQ_FILES} ${TMP_DIR}/ 2> /dev/null
 cd ${TMP_DIR}
 echo
 
-# For each team/student, go through all the test cases
+# Go through all the test cases
+# If any error is encountered, continue on to next case
 for ((i = 0; i < ${NUM_CASES}; i++)); do
     CASE=${TEST_CASES[${i}]}
 
@@ -85,7 +85,17 @@ for ((i = 0; i < ${NUM_CASES}; i++)); do
 
     # Ensure mandatory scripts 'test' and 'check-output' exist
     checkRequiredScript ${LAB_DIR}/${CASE}/test
+    if [[ $? -ne 0 ]]; then
+        bold_red "\tPlease report this to the head TA"
+        bold_red "\tSkipping this case..."
+        continue
+    fi
     checkRequiredScript ${LAB_DIR}/${CASE}/check-output
+    if [[ $? -ne 0 ]]; then
+        bold_red "\tPlease report this to the head TA"
+        bold_red "\tSkipping this case..."
+        continue
+    fi
 
     # Pre-test is OPTIONAL. Run it if it exists.
     checkOptionalAndRun ${LAB_DIR}/${CASE}/pre-test
