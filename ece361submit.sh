@@ -5,7 +5,7 @@
 # Usage format:
 #   ece361submit <lab num>
 #
-SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
+SCRIPT_DIR=$(dirname $(readlink -f "$0"))
 source ${SCRIPT_DIR}/echoHelpers
 unset ERR
 
