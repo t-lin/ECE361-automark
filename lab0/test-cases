@@ -15,7 +15,7 @@
 #       - e.g. 2.0 is valid, 2. is not valid
 #
 
-public case1
+public example-text-processing
 public case2
 private example-text-processing 1
 #private case2 0.5

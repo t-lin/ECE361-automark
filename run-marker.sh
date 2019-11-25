@@ -1,5 +1,5 @@
 #!/bin/bash
-# To be run in the directory containing all the student's submissions
+# To be run by the marking TA in a directory containing all the submissions
 #   - e.g. Each subdirectory is the UTORid of a student who submitted
 #
 # Will create an output file in the same directory (./labX-results.csv)
@@ -61,11 +61,10 @@ function checkOptionalAndRun() {
 
 # Validate required scripts to see if they exist and is executable.
 # If not, print out error and quit.
-function checkRequiredFiles() {
+function checkRequiredScript() {
     FILE=$1
 
     if [[ ! -f ${FILE} || ! -x ${FILE} ]]; then
-    #if [[ ! -f ${FILE} ]]; then
         BASENAME=$(basename ${FILE})
         bold_red "ERROR:\tCase '${CASE}' is missing required file '${BASENAME}'"
         bold_red "\tAborting the remaining tests"
@@ -154,8 +153,8 @@ for LINE in ${STUDENT_LIST}; do
         bold_blue "=================================================="
 
         # Ensure mandatory scripts 'test' and 'check-output' exist
-        checkRequiredFiles ${LAB_DIR}/${CASE}/test
-        checkRequiredFiles ${LAB_DIR}/${CASE}/check-output
+        checkRequiredScript ${LAB_DIR}/${CASE}/test
+        checkRequiredScript ${LAB_DIR}/${CASE}/check-output
 
         # Pre-test is OPTIONAL. Run it if it exists.
         checkOptionalAndRun ${LAB_DIR}/${CASE}/pre-test

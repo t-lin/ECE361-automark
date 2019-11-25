@@ -54,7 +54,6 @@ checkErr
 # EECG's submit command requires files to be submitted from current directory
 # Create a temporary directory, copy files there, run submit from there, then clean-up
 TMP_DIR=`mktemp -d`
-echo "Temp dir is... " ${TMP_DIR}
 chmod og-rwx ${TMP_DIR}
 cp -a ${REQ_FILES} ${TMP_DIR}/
 cd ${TMP_DIR}
