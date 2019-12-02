@@ -3,9 +3,13 @@
 # The directory should contain the student's submissions (with relative paths
 # specified similar to the submission script)
 #
+# Possible return statuses:
+#   - 0: All good
+#   - 1: Files were missing, bail out
+#   - 10: Files were missing, ignore and continue
 
 CURR_DIR=`pwd`
-SCRIPT_DIR=$(dirname $(readlink -f "$0"))
+SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 source ${SCRIPT_DIR}/echoHelpers
 unset ERR
 
@@ -22,20 +26,28 @@ fi
 # Directory where all the marking files and scripts are
 LAB_DIR=${SCRIPT_DIR}/lab${LAB_NUM}
 
-# Checks if 'ERR' variable exists and has been set, and exit if so.
-function checkErr() {
-    if [[ $ERR ]]; then
-        exit 1
-    fi
-}
-
-# Ensure required files exist, exit if at least one is missing
+# Ensure required files exist
+unset MISSING_FILES
 REQ_FILES=`cat ${LAB_DIR}/required-files | grep -v "^#"`
 for FILE in ${REQ_FILES}; do
     if [[ ! -f ${FILE} ]]; then
         bold_yellow "WARNING: ${FILE} does not exist"
+        MISSING_FILES=1
     fi
 done
+
+if [[ -n ${MISSING_FILES} ]]; then
+    echo
+    bold_yellow "One or more required files for lab are missing."
+    bold_yellow "You may be in the wrong directory, or have not yet completed the lab."
+    bold_yellow -n "Ignore and continue? (yes/no) => "
+    read IGNORE_MISSING_FILES
+    echo
+
+    if [[ ! ${IGNORE_MISSING_FILES} =~ [yY] ]]; then
+        exit 1 # See status codes in comments above
+    fi
+fi
 
 # Read in test cases and marks per case
 TEST_CASES=(`cat ${LAB_DIR}/test-cases | grep -E "^public" | cut -d ' ' -f 2`)
@@ -123,3 +135,7 @@ mv *-output.log ${CURR_DIR}
 cd ${CURR_DIR}
 rm -rf ${TMP_DIR} # Clean-up
 
+# If IGNORE_MISSING_FILES was specified, return status code 10
+if [[ ${IGNORE_MISSING_FILES} =~ [yY] ]]; then
+    exit 10 # See status codes in comments above
+fi

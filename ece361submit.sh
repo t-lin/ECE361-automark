@@ -5,7 +5,7 @@
 # Usage format:
 #   ece361submit <lab num>
 #
-SCRIPT_DIR=$(dirname $(readlink -f "$0"))
+SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 source ${SCRIPT_DIR}/echoHelpers
 unset ERR
 
