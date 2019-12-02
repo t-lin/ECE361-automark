@@ -84,11 +84,14 @@ TMP_DIR=`mktemp -d`
 chmod og-rwx ${TMP_DIR}
 cp -a ${REQ_FILES} ${TMP_DIR}/ 2> /dev/null
 cd ${TMP_DIR}
-echo
 
 # Go through all the test cases
 # If any error is encountered, continue on to next case
+NUM_FAILED=0
+NUM_PASSED=0
+NUM_SKIPPED=0
 for ((i = 0; i < ${NUM_CASES}; i++)); do
+    echo; echo;
     CASE=${TEST_CASES[${i}]}
 
     bold_blue "=================================================="
@@ -100,12 +103,14 @@ for ((i = 0; i < ${NUM_CASES}; i++)); do
     if [[ $? -ne 0 ]]; then
         bold_red "\tPlease report this to the head TA"
         bold_red "\tSkipping this case..."
+        NUM_SKIPPED=`echo "${NUM_SKIPPED} + 1" | bc`
         continue
     fi
     checkRequiredScript ${LAB_DIR}/${CASE}/check-output
     if [[ $? -ne 0 ]]; then
         bold_red "\tPlease report this to the head TA"
         bold_red "\tSkipping this case..."
+        NUM_SKIPPED=`echo "${NUM_SKIPPED} + 1" | bc`
         continue
     fi
 
@@ -123,12 +128,21 @@ for ((i = 0; i < ${NUM_CASES}; i++)); do
     ${LAB_DIR}/${CASE}/check-output ${CASE}-output.log
     if [[ $? -eq 0 ]]; then
         bold_green "Success :D"
+        NUM_PASSED=`echo "${NUM_PASSED} + 1" | bc`
     elif [[ $? -eq 1 ]]; then
         bold_red "Failed :("
+        NUM_FAILED=`echo "${NUM_FAILED} + 1" | bc`
     fi
-
-    echo; echo;
 done
+
+echo; echo;
+bold_blue "=================================================="
+bold_blue "Summary of tests:"
+bold_blue "=================================================="
+bold_green "Passed: ${NUM_PASSED} out of ${NUM_CASES}"
+bold_red "Failed: ${NUM_FAILED} out of ${NUM_CASES}"
+bold_yellow "Skipped: ${NUM_SKIPPED} out of ${NUM_CASES}"
+echo
 
 # Move log files and return to previous directory
 mv *-output.log ${CURR_DIR}
