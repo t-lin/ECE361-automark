@@ -34,34 +34,52 @@ else
     fi
 fi
 
-# Checks if 'ERR' variable exists and has been set, and exit if so.
-function checkErr() {
-    if [[ $ERR ]]; then
-        exit 1
-    fi
-}
+# Directory where all the marking files and scripts are
+LAB_DIR=${SCRIPT_DIR}/lab${LAB_NUM}
 
-# Ensure required files exist, exit if at least one is missing
-REQ_FILES=`cat ${SCRIPT_DIR}/lab${LAB_NUM}/required-files | grep -v "^#"`
-for FILE in ${REQ_FILES}; do
-    if [[ ! -f ${FILE} ]]; then
-        bold_red "ERROR: ${FILE} does not exist"
-        ERR=1
+# IGNORE_MISSING_FILES *may* have been set by a calling script, or by the user
+# If it's not yes, or it hasn't been set yet, then check if required files exist
+REQ_FILES=`cat ${LAB_DIR}/required-files | grep -v "^#"`
+if [[ ! $IGNORE_MISSING_FILES =~ [yY] ]]; then
+    unset MISSING_FILES
+    for FILE in ${REQ_FILES}; do
+        if [[ ! -f ${FILE} ]]; then
+            bold_yellow "WARNING: ${FILE} does not exist"
+            MISSING_FILES=1
+        fi
+    done
+
+    if [[ -n ${MISSING_FILES} ]]; then
+        echo
+        bold_yellow "One or more required files for lab are missing."
+        bold_yellow "You may be in the wrong directory, or have not yet completed the lab."
+        bold_yellow -n "Ignore and continue? (yes/no) => "
+        read IGNORE_MISSING_FILES
+        echo
+
+        if [[ ! ${IGNORE_MISSING_FILES} =~ [yY] ]]; then
+            exit 1
+        fi
     fi
-done
-checkErr
+fi
 
 # EECG's submit command requires files to be submitted from current directory
 # Create a temporary directory, copy files there, run submit from there, then clean-up
 TMP_DIR=`mktemp -d`
 chmod og-rwx ${TMP_DIR}
-cp -a ${REQ_FILES} ${TMP_DIR}/
+cp -a ${REQ_FILES} ${TMP_DIR}/ 2> /dev/null
 cd ${TMP_DIR}
-${EECG_SUBMIT} ${LAB_NUM} *
+if [[ `ls` ]]; then
+    ${EECG_SUBMIT} ${LAB_NUM} *
+else
+    bold_red "ERROR: Nothing to submit"
+fi
+
 cd -
 rm -rf ${TMP_DIR}
 
 # List submissions for students to confirm
+echo
 bold_blue "Listing submissions..."
 ${EECG_SUBMIT} -l ${LAB_NUM}
 
