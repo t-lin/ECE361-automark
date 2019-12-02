@@ -1,46 +1,72 @@
 #!/bin/bash
-# Blue: "\e[1;34;40m $1 \e[0m"
-# Yellow: "\e[1;33;40m $1 \e[0m"
-# Green: "\e[1;32;40m $1 \e[0m"
-# Red: "\e[1;31;40m $1 \e[0m"
-# Bold Blue: "\e[1;94;40m $1 \e[0m"
-# Bold Yellow: "\e[1;93;40m $1 \e[0m"
-# Bold Green: "\e[1;92;40m $1 \e[0m"
-# Bold Red: "\e[1;91;40m $1 \e[0m"
 
 function command_desc() {
     echo -e "\e[1;33;40m$1\e[0m"
     read -p "Press [Enter] key to continue..."
 }
 
+# Sets the 'STRING' and 'FLAGS' environment variables
+function setFlagsString() {
+    if [ "$1" = "-n" ]; then
+        STRING=$2
+        FLAGS=-ne
+    else
+        STRING=$1
+        FLAGS=-e
+    fi
+}
+
 function green() {
-    echo -e "\e[1;32;40m$1\e[0m"
+    setFlagsString "$1" "$2"
+    echo $FLAGS "\e[1;32;40m${STRING}\e[0m"
 }
 
 function blue() {
-    echo -e "\e[1;34;40m$1\e[0m"
+    setFlagsString "$1" "$2"
+    echo $FLAGS "\e[1;34;40m${STRING}\e[0m"
 }
 
 function yellow() {
-    echo -e "\e[1;33;40m$1\e[0m"
+    setFlagsString "$1" "$2"
+    echo $FLAGS "\e[1;33;40m${STRING}\e[0m"
 }
 
 function red() {
-    echo -e "\e[1;31;40m$1\e[0m"
+    setFlagsString "$1" "$2"
+    echo $FLAGS "\e[1;31;40m${STRING}\e[0m"
+}
+
+function green_title() {
+    echo
+    echo "======================================================"
+    echo -e "\e[1;92;40m$1\e[0m"
+    echo "------------------------------------------------------"
+}
+
+function blue_title() {
+    echo
+    echo "======================================================"
+    echo -e "\e[1;94;40m$1\e[0m"
+    echo "------------------------------------------------------"
 }
 
 function bold_green() {
-    echo -e "\e[1;92;40m$1\e[0m"
+    setFlagsString "$1" "$2"
+    echo $FLAGS "\e[1;92;40m${STRING}\e[0m"
 }
 
 function bold_blue() {
-    echo -e "\e[1;94;40m$1\e[0m"
+    setFlagsString "$1" "$2"
+    echo $FLAGS "\e[1;94;40m${STRING}\e[0m"
 }
 
 function bold_yellow() {
-    echo -e "\e[1;93;40m$1\e[0m"
+    setFlagsString "$1" "$2"
+    echo $FLAGS "\e[1;93;40m${STRING}\e[0m"
 }
 
 function bold_red() {
-    echo -e "\e[1;91;40m$1\e[0m"
+    setFlagsString "$1" "$2"
+    echo $FLAGS "\e[1;91;40m${STRING}\e[0m"
 }
+
