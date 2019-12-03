@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Do pingall and exit mininet
+screen -S mininet -X stuff "pingall"
+
+# Let pingall complete
+sleep 3
+
+# Since test framework expects this script to print to stdout...
+cat /home/ubuntu/mininet-output.log
+

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Gracefull quit mininet
+screen -S mininet -X stuff "quit"
+
+# Kill screen
+screen -S mininet -X quit
+
