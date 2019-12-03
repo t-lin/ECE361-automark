@@ -6,7 +6,7 @@
 # Possible return statuses:
 #   - 0: All good
 #   - 1: Files were missing, bail out
-#   - 10: Files were missing, ignore and continue
+#   - 10: Files were missing, ignored and continued
 
 CURR_DIR=`pwd`
 SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
@@ -141,7 +141,9 @@ bold_blue "Summary of tests:"
 bold_blue "=================================================="
 bold_green "Passed: ${NUM_PASSED} out of ${NUM_CASES}"
 bold_red "Failed: ${NUM_FAILED} out of ${NUM_CASES}"
-bold_yellow "Skipped: ${NUM_SKIPPED} out of ${NUM_CASES}"
+if [[ ${NUM_SKIPPED} -gt 0 ]]; then
+    bold_yellow "Skipped: ${NUM_SKIPPED} out of ${NUM_CASES}"
+fi
 echo
 
 # Move log files and return to previous directory
