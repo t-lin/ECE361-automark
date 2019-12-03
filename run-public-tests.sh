@@ -1,12 +1,13 @@
 #!/bin/bash
 # To be run by students as an exercisor (to check output formatting and etc.)
-# The directory should contain the student's submissions (with relative paths
-# specified similar to the submission script)
+# The directory where this is run should contain all the student's submissions.
 #
 # Possible return statuses:
 #   - 0: All good
-#   - 1: Files were missing, bail out
-#   - 10: Files were missing, ignored and continued
+#   - 1: Files were missing, abort
+#   - 10: One or more tests failed.
+#         Test failure may be due to missing files that were ignored.
+#         TODO: Figure out a way to differentiate between these two cases.
 
 CURR_DIR=`pwd`
 SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
@@ -151,7 +152,9 @@ mv *-output.log ${CURR_DIR}
 cd ${CURR_DIR}
 rm -rf ${TMP_DIR} # Clean-up
 
-# If IGNORE_MISSING_FILES was specified, return status code 10
-if [[ ${IGNORE_MISSING_FILES} =~ [yY] ]]; then
+if [[ ${NUM_FAILED} -eq 0 ]]; then
+    exit 0
+elif [[ ${NUM_FAILED} -gt 0 || ${IGNORE_MISSING_FILES} =~ [yY] ]]; then
+    # If IGNORE_MISSING_FILES was specified, return status code 10
     exit 10 # See status codes in comments above
 fi
