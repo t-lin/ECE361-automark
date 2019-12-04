@@ -5,17 +5,18 @@
 # Will create an output file in the same directory (./labX-results.csv)
 #
 
+CURR_DIR=`pwd`
+SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+source ${SCRIPT_DIR}/echoHelpers
+
 if [[ $# -ne 1 ]]; then
+    MARKER_CMD=$(basename ${BASH_SOURCE[0]}) # Works w/ symbolic links
     bold_red "ERROR: Expecting one parameter (the lab #)"
-    bold_blue "Usage: run-marker.sh <lab #>"
+    bold_blue "Usage: ${MARKER_CMD} <lab #>"
     exit 1
 else
     LAB_NUM=$1
 fi
-
-CURR_DIR=`pwd`
-SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
-source ${SCRIPT_DIR}/echoHelpers
 
 # Directory where all the marking files and scripts are
 LAB_DIR=${SCRIPT_DIR}/lab${LAB_NUM}

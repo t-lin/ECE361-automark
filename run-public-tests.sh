@@ -15,7 +15,7 @@ source ${SCRIPT_DIR}/echoHelpers
 unset ERR
 
 if [[ $# -ne 1 ]]; then
-    SUBMIT_CMD=$(basename $0) # Works w/ symbolic links
+    SUBMIT_CMD=$(basename ${BASH_SOURCE[0]}) # Works w/ symbolic links
     bold_red "ERROR: Expecting exactly one parameter (the lab #)"
     bold_blue "Usage format:"
     blue "\t${SUBMIT_CMD} <lab #>"
