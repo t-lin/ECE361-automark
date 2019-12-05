@@ -1,0 +1,18 @@
+# File to specify closing time for lab submissions
+# Each line must follow the format:
+#   lab<num> <due date and time>
+#
+# Dates and times must be specified in the format:
+#   YYYY-MM-DD HH:MM
+# where the hour is a 24H clock
+#   - e.g. 7:21 PM on Dec. 4th 2019 is: 2019-12-04 19:21
+#
+# Example:
+#   lab0 1969-12-31 19:00
+
+lab1 2020-01-24 16:00
+lab2 2020-02-07 16:00
+lab3 2020-03-06 16:00
+lab4 2020-03-20 16:00
+lab5 2020-04-03 16:00
+

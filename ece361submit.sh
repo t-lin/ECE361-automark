@@ -34,6 +34,20 @@ else
     fi
 fi
 
+# Check if due date for this lab has passed
+DUE_DATE=`cat ${SCRIPT_DIR}/lab-due-dates | grep "^lab${LAB_NUM}" | cut -d ' ' -f 2-`
+if [[ -n ${DUE_DATE} ]]; then
+    DUE_DATE_UNIX=`date -d "${DUE_DATE}" +%s`
+    NOW=`date +%s`
+    if [[ ${NOW} -gt ${DUE_DATE_UNIX} ]]; then
+        bold_red "Unable to submit. Due date for Lab ${LAB_NUM} (${DUE_DATE}) has passed."
+        exit 0
+    fi
+else
+    bold_red "ERROR: No due date found in due dates file. Please alert the head TA."
+    exit 1
+fi
+
 # Directory where all the marking files and scripts are
 LAB_DIR=${SCRIPT_DIR}/lab${LAB_NUM}
 
