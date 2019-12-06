@@ -44,7 +44,8 @@ if [[ -n ${DUE_DATE} ]]; then
         exit 0
     fi
 else
-    bold_red "ERROR: No due date found in due dates file. Please alert the head TA."
+    bold_red "ERROR: No due date found in due dates file"
+    bold_red "       Please report this to the head TA"
     exit 1
 fi
 

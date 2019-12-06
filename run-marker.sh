@@ -18,10 +18,23 @@ else
     LAB_NUM=$1
 fi
 
+# Timeout for tests to run, in seconds
+TEST_TIMEOUT=60
+
 # Directory where all the marking files and scripts are
 LAB_DIR=${SCRIPT_DIR}/lab${LAB_NUM}
+if [[ ! -d ${LAB_DIR} ]]; then
+    bold_red "ERROR: lab${LAB_NUM} directory does not exist"
+    bold_red "       Please report this to the head TA"
+    exit 1
+fi
 
 # Read in list of teams in the course (by UTORid)
+if [[ ! -f ${SCRIPT_DIR}/student-teams ]]; then
+    bold_red "ERROR: student-teams file does not exist"
+    bold_red "       Please report this to the head TA"
+    exit 1
+fi
 STUDENT_LIST=`cat ${SCRIPT_DIR}/student-teams | grep "^[a-z]"`
 
 # Define results file to store marking data
@@ -161,7 +174,12 @@ for LINE in ${STUDENT_LIST}; do
         checkOptionalAndRun ${LAB_DIR}/${CASE}/pre-test
 
         # Run test, redirect stderr to stdout, then write out to file
-        ${LAB_DIR}/${CASE}/test > ${CASE}-output.log 2>&1
+        # If test process lasts longer than 60 seconds, kill it
+        timeout -s 9 ${TEST_TIMEOUT} ${LAB_DIR}/${CASE}/test > ${CASE}-output.log 2>&1
+        if [[ $? -eq 137 ]]; then
+            bold_red "ERROR: Test case ${CASE} for ${UTORID} timed out (${TEST_TIMEOUT} seconds) and was killed"
+            bold_red "       This may be due to an infinite loop, please check manually"
+        fi
 
         # Post-test is OPTIONAL. Run it if it exists.
         checkOptionalAndRun ${LAB_DIR}/${CASE}/post-test
