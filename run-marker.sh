@@ -161,7 +161,7 @@ for LINE in ${STUDENT_LIST}; do
         checkOptionalAndRun ${LAB_DIR}/${CASE}/pre-test
 
         # Run test, redirect stderr to stdout, then write out to file
-        ${LAB_DIR}/${CASE}/test 2>&1 > ${CASE}-output.log
+        ${LAB_DIR}/${CASE}/test > ${CASE}-output.log 2>&1
 
         # Post-test is OPTIONAL. Run it if it exists.
         checkOptionalAndRun ${LAB_DIR}/${CASE}/post-test
