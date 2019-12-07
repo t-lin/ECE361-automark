@@ -31,14 +31,6 @@ if [[ ! -d ${LAB_DIR} ]]; then
     exit 1
 fi
 
-# Read in list of teams in the course (by UTORid)
-if [[ ! -f ${SCRIPT_DIR}/student-teams ]]; then
-    bold_red "ERROR: student-teams file does not exist"
-    bold_red "       Please report this to the head TA"
-    exit 1
-fi
-STUDENT_LIST=`cat ${SCRIPT_DIR}/student-teams | grep "^[a-z]"`
-
 if [[ ! -f ${LAB_DIR}/required-files ]]; then
     bold_red "ERROR: lab${LAB_NUM} directory is missing the 'required-files' file"
     bold_red "       Please report this to the head TA"

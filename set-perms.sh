@@ -8,18 +8,23 @@ THIS_SCRIPT=$(basename ${BASH_SOURCE[0]}) # Works w/ symbolic links
 MARKER_SCRIPT=run-marker.sh
 EXERCISER_SCRIPT=run-public-tests.sh
 SUBMIT_SCRIPT=ece361submit.sh
+MOSS_SCRIPT=run-moss.sh
+DUE_DATES_FILE=lab-due-dates
 
 cd ${SCRIPT_DIR} # In case this is executed from elsewhere
 
 # Default: Remove rwx from everyone else
 chmod -R og-rwx *
 
-# Disable all write access on this and the marker script to prevent accidental modifications
-chmod 500 ${THIS_SCRIPT} ${MARKER_SCRIPT}
+# Disable all write access on this and TA-only scripts to prevent accidental modifications
+chmod 500 ${THIS_SCRIPT} ${MARKER_SCRIPT} ${MOSS_SCRIPT}
 
 # Enable public read and execute for exerciser and submit scripts
 # Disable all writes to prevent accidental modifications
 chmod 555 ${EXERCISER_SCRIPT} ${SUBMIT_SCRIPT}
+
+# Enable others to read due dates
+chmod 644 ${DUE_DATES_FILE}
 
 # Set permissions for lab files and their cases
 LAB_DIRS=`find . -type d -name "lab*"`
