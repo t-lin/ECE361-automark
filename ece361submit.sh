@@ -40,8 +40,13 @@ if [[ -n ${DUE_DATE} ]]; then
     DUE_DATE_UNIX=`date -d "${DUE_DATE}" +%s`
     NOW=`date +%s`
     if [[ ${NOW} -gt ${DUE_DATE_UNIX} ]]; then
-        bold_red "Unable to submit. Due date for Lab ${LAB_NUM} (${DUE_DATE}) has passed."
-        exit 0
+        bold_yellow "Due date for Lab ${LAB_NUM} (${DUE_DATE}) has passed."
+        bold_yellow -n "Continue with late submission? (yes/no) => "
+        read IGNORE_LATE_SUBMIT
+        echo
+        if [[ ${IGNORE_LATE_SUBMIT} =~ [nN] ]]; then
+            exit 0
+        fi
     fi
 else
     bold_red "ERROR: No due date found in due dates file"
