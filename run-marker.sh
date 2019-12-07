@@ -2,6 +2,9 @@
 # To be run by the marking TA in a directory containing all the submissions
 #   - e.g. Each subdirectory is the UTORid of a student who submitted
 #
+# NOTE: Since this script will check for submission dates, shoulud copy the
+#       student's submission directory with cp -a to preserve attributes
+#
 # Will create an output file in the same directory (./labX-results.csv)
 #
 
@@ -39,9 +42,28 @@ STUDENT_LIST=`cat ${SCRIPT_DIR}/student-teams | grep "^[a-z]"`
 
 # Define results file to store marking data
 # Back up results file if one already exists
-RESULTS_FILE=${SCRIPT_DIR}/lab${LAB_NUM}-results.csv
+RESULTS_FILE=${CURR_DIR}/lab${LAB_NUM}-results.csv
 if [[ -f ${RESULTS_FILE} ]]; then
     mv ${RESULTS_FILE} ${RESULTS_FILE}.`date +%s`
+fi
+
+MISSING_SUBMIT_LOG=${CURR_DIR}/missing-submissions.log
+if [[ -f ${MISSING_SUBMIT_LOG} ]]; then
+    mv ${MISSING_SUBMIT_LOG} ${MISSING_SUBMIT_LOG}.`date +%s`
+fi
+
+LATE_SUBMIT_LOG=${CURR_DIR}/late-submissions.log
+if [[ -f ${LATE_SUBMIT_LOG} ]]; then
+    mv ${LATE_SUBMIT_LOG} ${LATE_SUBMIT_LOG}.`date +%s`
+fi
+
+DUE_DATE=`cat ${SCRIPT_DIR}/lab-due-dates | grep "^lab${LAB_NUM}" | cut -d ' ' -f 2-`
+if [[ -n ${DUE_DATE} ]]; then
+    DUE_DATE_UNIX=`date -d "${DUE_DATE}" +%s`
+else
+    bold_red "ERROR: No due date found in due dates file"
+    bold_red "       Please report this to the head TA"
+    exit 1
 fi
 
 # Read in test cases and marks per case
@@ -150,8 +172,16 @@ for LINE in ${STUDENT_LIST}; do
     # Create entries in results file, but leave marks empty
     if [[ ! -n ${UTORID} ]]; then
         bold_yellow "WARNING: No submission for ${LINE}"
+        echo ${LINE} >> ${MISSING_SUBMIT_LOG}
         writeGradeFile $LINE
         continue
+    fi
+
+    # Check if submission was late
+    SUBMIT_TIME=`ls -l -d ${UTORID} | awk '{print $6,$7,$8}'`
+    SUBMIT_TIME_UNIX=`date -d "${MOD_TIME}" +%s`
+    if [[ ${SUBMIT_TIME_UNIX} -gt ${DUE_DATE_UNIX} ]]; then
+        echo ${UTORID} >> ${LATE_SUBMIT_LOG}
     fi
 
     unset RESULT_LINE
@@ -207,5 +237,11 @@ done
 
 echo; echo;
 bold_green "Done. See results in ${RESULTS_FILE}"
+if [[ -f ${LATE_SUBMIT_LOG} ]]; then
+    bold_green "See list of late submitters in ${LATE_SUBMIT_LOG}"
+fi
+if [[ -f ${MISSING_SUBMIT_LOG} ]]; then
+    bold_green "See list of missing submitters in ${MISSING_SUBMIT_LOG}"
+fi
 echo
 
