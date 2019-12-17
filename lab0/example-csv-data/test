@@ -1,0 +1,9 @@
+#!/bin/bash
+# Nothing to test here... this is for a case where the student submits raw data.
+# Simply just check if their data submission exists, and cat it.
+
+if [[ -f dummy-submission.csv ]]; then
+    cat dummy-submission.csv
+fi
+exit 0
+

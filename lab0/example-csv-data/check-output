@@ -1,0 +1,85 @@
+#!/usr/bin/python
+import sys
+import os
+
+if len(sys.argv) != 2:
+    print "ERROR: Expecting one parameter, name of the CSV file to analyze"
+    sys.exit(1)
+else:
+    studentFile = os.path.join(os.getcwd(), sys.argv[1])
+    print "Checking: %s" % studentFile
+
+# Get reference file
+scriptPath = os.path.join(os.getcwd(), os.path.basename(__file__))
+scriptPath = os.path.realpath(scriptPath) # Account for symbolic links
+scriptDir = os.path.dirname(scriptPath)
+referenceFile = os.path.join(scriptDir, 'data-ref.csv')
+
+# Define error bounds for comparing data
+ERROR_BOUND = 0.1 # +/- 10% of reference solution
+
+# Turns contents of file into one continuous string
+def TransformData(filename):
+    assert type(filename) in (str, unicode)
+    fileHandle = open(filename, 'r')
+    contents = fileHandle.readlines()
+    fileHandle.close()
+
+    # Get rid of array format, merge into single string object
+    contents = ''.join(contents)
+
+    # Split up all CSV fields (i.e. replace ',' with ' ')
+    contents = contents.replace(',', ' ')
+
+    # Split on whitespaces and re-join with single space.
+    # This will remove leading and trailing whitespaces, as well as
+    # shrink any intermediary whitespaces (one or more).
+    contents = " ".join(contents.split())
+
+    # Convert everything to lower case
+    contents = contents.lower()
+
+    return contents
+
+# Transform into array for easier processing later
+referenceData = TransformData(referenceFile).split()
+studentData = TransformData(studentFile).split()
+
+# Expecting the same number of data points
+# This can be adjustable by whoever writes the test case (e.g. user may have more)
+if len(referenceData) != len(studentData):
+    print "Length of student's submission does not match"
+    sys.exit(1)
+
+# Check per word/value
+error = False
+for i in range(len(referenceData)):
+    if referenceData[i] == studentData[i]:
+        continue
+
+    # Might be numbers, allow for errors within bound
+    # Convert to floats
+    #   - If exception is raised, then it's not a number and we can break
+    try:
+        refVal = float(referenceData[i])
+        stuVal = float(studentData[i])
+    except Exception as e:
+        print e
+        error = True
+        break
+
+    if (refVal * (1 + ERROR_BOUND) >= stuVal and refVal * (1 - ERROR_BOUND) <= stuVal):
+        continue
+
+    # Failed to match reference, break now
+    error = True
+    break
+
+# If we get here, then we're gucci
+if error:
+    print "Uh oh"
+    sys.exit(1)
+else:
+    print "All good!"
+    sys.exit(0)
+
