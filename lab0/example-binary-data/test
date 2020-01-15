@@ -1,0 +1,7 @@
+#!/bin/bash
+# Assume the student's code generates a binary file (we provide the filename they must use)
+# Check for its existence, then simply echo the name
+
+if [[ -f dummy-submission.png ]]; then
+    echo "dummy-submission.png"
+fi

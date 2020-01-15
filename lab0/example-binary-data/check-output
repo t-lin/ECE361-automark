@@ -1,0 +1,31 @@
+#!/bin/bash
+# This script is to check the output
+# It should RETURN 0 if everything is successful, else bad
+
+STUDENT_GENERATED_FILE=`head -n1 $1` # Use 'head' in case of new-line
+
+SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+REF_FILE_BASENAME=ref-img.png
+REF_FILE=${SCRIPT_DIR}/${REF_FILE_BASENAME}
+
+# Sanity check: Ensure files exist
+if [[ ! -f ${STUDENT_GENERATED_FILE} ]]; then
+    echo "Student's binary file is missing"
+    exit 1
+fi
+
+if [[ ! -f ${REF_FILE} ]]; then
+    # If this happens... TA messed up something
+    echo "Reference file is missing, please alert the head TA"
+    exit 1
+fi
+
+# Run diff, but silence any output
+diff ${STUDENT_GENERATED_FILE} ${REF_FILE} > /dev/null 2>&1
+if [[ $? -eq 0 ]]; then
+    exit 0
+else
+    echo "Student's binary file does not match reference file"
+    exit 1
+fi
+
