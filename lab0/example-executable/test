@@ -1,0 +1,8 @@
+#!/bin/bash
+NUM_PRIMES=50
+
+if [[ -f dummy-submission.py ]]; then
+    # Run the student's code to generate the first NUM_PRIMES number of prime numbers
+    echo ${NUM_PRIMES} | python3 dummy-submission.py
+fi
+
