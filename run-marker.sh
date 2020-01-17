@@ -9,7 +9,7 @@
 #
 
 CURR_DIR=`pwd`
-SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 source ${SCRIPT_DIR}/echoHelpers
 
 if [[ $# -ne 1 ]]; then
