@@ -6,7 +6,12 @@
 #   ece361submit <lab num>
 #
 SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
-source ${SCRIPT_DIR}/echoHelpers
+if [[ -f /usr/local/ece361-wrapper-prints ]]; then
+    # Running within VM
+    source /usr/local/ece361-wrapper-prints
+else
+    source ${SCRIPT_DIR}/echoHelpers
+fi
 unset ERR
 
 MONTH_NUM=`date +%m`
@@ -41,12 +46,13 @@ if [[ -n ${DUE_DATE} ]]; then
     NOW=`date +%s`
     if [[ ${NOW} -gt ${DUE_DATE_UNIX} ]]; then
         bold_yellow "Due date for Lab ${LAB_NUM} (${DUE_DATE}) has passed."
-        bold_yellow -n "Continue with late submission? (yes/no) => "
-        read IGNORE_LATE_SUBMIT
-        echo
-        if [[ ${IGNORE_LATE_SUBMIT} =~ [nN] ]]; then
-            exit 0
-        fi
+        #bold_yellow -n "Continue with late submission? (yes/no) => "
+        #read IGNORE_LATE_SUBMIT
+        #echo
+        #if [[ ${IGNORE_LATE_SUBMIT} =~ [nN] ]]; then
+        #    exit 0
+        #fi
+        exit 0
     fi
 else
     bold_red "ERROR: No due date found in due dates file"

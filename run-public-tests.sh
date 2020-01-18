@@ -11,7 +11,12 @@
 
 CURR_DIR=`pwd`
 SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
-source ${SCRIPT_DIR}/echoHelpers
+if [[ -f /usr/local/ece361-wrapper-prints ]]; then
+    # Running within VM
+    source /usr/local/ece361-wrapper-prints
+else
+    source ${SCRIPT_DIR}/echoHelpers
+fi
 unset ERR
 
 if [[ $# -ne 1 ]]; then
