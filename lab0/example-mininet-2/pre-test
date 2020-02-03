@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Exit any pre-existing mininet sessions and clean up
+screen -S mininet -X quit > /dev/null
+sudo mn -c 2> /dev/null
+
+# Create new screen and start mn within it
+screen -d -m -S mininet
+sleep 0.1
+screen -S mininet -X stuff "sudo mn --topo single,2 --switch ovsk --controller none^M"
+
+while [[ `ps faux | grep -E "mininet:h[0-9]+" | wc -l` -ne 2 ]]; do
+    sleep 1
+done
+
+# Change IPs
+H1_IP=192.168.1.1
+H2_IP=192.168.1.2
+screen -S mininet -X stuff "h1 ifconfig h1-eth0 ${H1_IP}/24 up^M"
+sleep 0.5
+screen -S mininet -X stuff "h2 ifconfig h2-eth0 ${H2_IP}/24 up^M"
+
+# Pre-add netem qdisc to the interfaces on OVS w/ one-way delays of 1ms
+# Make packets going to h1 have a 20% loss rate
+sudo tc qdisc add dev s1-eth1 root netem delay 1ms loss 20%
+sudo tc qdisc add dev s1-eth2 root netem delay 1ms
+
+# Pre-insert flow rules to enable 2-way communication
+sudo ovs-ofctl add-flow s1 in_port=1,actions=output:2
+sudo ovs-ofctl add-flow s1 in_port=2,actions=output:1
+
+# Just in case of any timing issues before test starts...
+sleep 1

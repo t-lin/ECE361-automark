@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Run iperf server in the mininet console
+screen -S mininet -X stuff "h1 iperf -s -u"
+sleep 1
+
+# Run iperf client in h2 sending traffic to h1
+MN_HOST=2
+MN_HOST_PID=`ps aux | grep mininet:h${MN_HOST} | grep -v grep | awk '{print $2}'`
+if [[ ! -n ${MN_HOST_PID} ]]; then
+    bold_red "ERROR: Either the virtual network is not running or host h${MN_HOST} does not exist"
+    exit 1
+else
+    sudo nsenter -t ${MN_HOST_PID} -n iperf -c 192.168.1.1 -u -b100M
+fi
+

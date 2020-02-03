@@ -1,0 +1,18 @@
+#!/bin/bash
+# This script checks the output (the path is provided as the first param)
+# It should RETURN 0 if everything is successful, else bad
+
+# Get the loss (as just an integer, i.e. no % sign)
+PACKET_LOSS=`cat $1 | grep "Server Report" -A1 | tail -n1 | awk '{print $NF}' | grep -E -o "[0-9]+"`
+
+# Allow a tolerance of 1% (i.e. 19-21%)
+PACKET_LOSS_UPPER=21
+PACKET_LOSS_LOWER=19
+
+if [[ ${PACKET_LOSS} -le ${PACKET_LOSS_UPPER} && ${PACKET_LOSS} -ge ${PACKET_LOSS_LOWER} ]]; then
+    exit 0
+else
+    echo "Packet loss is ${PACKET_LOSS}, not within bounds"
+    exit 1
+fi
+
