@@ -168,7 +168,7 @@ echo
 # Move log files and return to previous directory
 mv *-output.log ${CURR_DIR}
 cd ${CURR_DIR}
-rm -rf ${TMP_DIR} # Clean-up
+sudo rm -rf ${TMP_DIR} # Clean-up
 
 if [[ ${NUM_FAILED} -eq 0 ]]; then
     exit 0
