@@ -179,7 +179,7 @@ for LINE in ${STUDENT_LIST}; do
 
     # Check if submission was late
     SUBMIT_TIME=`ls -l -d ${UTORID} | awk '{print $6,$7,$8}'`
-    SUBMIT_TIME_UNIX=`date -d "${MOD_TIME}" +%s`
+    SUBMIT_TIME_UNIX=`date -d "${SUBMIT_TIME}" +%s`
     if [[ ${SUBMIT_TIME_UNIX} -gt ${DUE_DATE_UNIX} ]]; then
         echo ${UTORID} >> ${LATE_SUBMIT_LOG}
     fi
